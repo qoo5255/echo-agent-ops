@@ -1,0 +1,24 @@
+{
+  "_doc": "Seating chart for agent actions. Rules are checked ASK first, then NOTIFY, then AUTO; within a tier the first match wins. 'tool' is a regex that must fullmatch the tool name; 'input' (optional) is a regex searched in the command string for Bash/PowerShell, and in the JSON of the tool input for every other tool. Edit this file to fit your setup; changing it is itself an ASK-tier decision for the human.",
+  "unknown_tier": "NOTIFY",
+  "rules": [
+    {"tier": "ASK", "id": "external_publish", "tool": "mcp__.*__(post\\w*|publish\\w*|create_post|tweet)", "why": "external publishing"},
+    {"tier": "ASK", "id": "email_send", "tool": "mcp__.*__(send_message|send_email|forward)", "why": "external send, irreversible"},
+    {"tier": "ASK", "id": "payments", "tool": ".*", "input": "(?i)(stripe|paypal|charge|invoice\\s+send|payout|budget\\s*=|set_budget|daily_budget)", "why": "money"},
+    {"tier": "ASK", "id": "cms_delete", "tool": "Bash|PowerShell|mcp__.*", "input": "(?i)wp\\s+(post|user|plugin)\\s+(delete|install|activate)|wp-config\\.php|wp\\s+user\\s+update[^\\n]*--user_pass", "why": "CMS red line"},
+    {"tier": "ASK", "id": "force_push", "tool": "Bash|PowerShell", "input": "(?i)git\\s+push[^\\n]*(--force|-f\\b)|git\\s+reset\\s+--hard\\s+origin", "why": "irreversible history change"},
+    {"tier": "ASK", "id": "prod_deploy_client", "tool": "Bash|PowerShell", "input": "(?i)deploy[^\\n]*(--prod|production)[^\\n]*client", "why": "changes a client site"},
+    {"tier": "ASK", "id": "install_package", "tool": "Bash|PowerShell", "input": "(?i)\\b(npm\\s+(i|install)\\s+-g|pip\\s+install|winget\\s+install|choco\\s+install|brew\\s+install)\\b", "why": "installing unreviewed tools"},
+    {"tier": "ASK", "id": "rules_change", "tool": "Edit|Write|MultiEdit", "input": "(?i)(CLAUDE\\.md|AGENTS\\.md|settings\\.json|tiers\\.json)", "why": "the rules themselves"},
+
+    {"tier": "NOTIFY", "id": "edit_files", "tool": "Edit|Write|MultiEdit|NotebookEdit", "why": "reversible local write"},
+    {"tier": "NOTIFY", "id": "chat_progress", "tool": "mcp__.*__(reply|edit_message|react)", "why": "internal progress message"},
+    {"tier": "NOTIFY", "id": "commit", "tool": "Bash|PowerShell", "input": "(?i)git\\s+commit", "why": "revertable"},
+    {"tier": "NOTIFY", "id": "run_script", "tool": "Bash|PowerShell", "input": "(?i)\\b(python|py|node|bash|pwsh)\\b", "why": "approved local script"},
+    {"tier": "NOTIFY", "id": "dispatch", "tool": "Agent|Task|SendMessage", "why": "delegation, cheap to stop"},
+
+    {"tier": "AUTO", "id": "read_only_tools", "tool": "Read|Grep|Glob|WebSearch|WebFetch|LS|NotebookRead", "why": "read-only"},
+    {"tier": "AUTO", "id": "read_only_shell", "tool": "Bash|PowerShell", "input": "^\\s*(git\\s+(status|log|diff|show)|ls|dir|cat|head|tail|grep|rg|Get-Content|Get-ChildItem|Select-String|curl\\s+-s?I)\\b", "why": "read-only diagnostic"},
+    {"tier": "AUTO", "id": "read_only_mcp", "tool": "mcp__.*__(get|list|search|fetch|read|query)\\w*", "why": "read-only"}
+  ]
+}

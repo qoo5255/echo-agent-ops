@@ -1,0 +1,23 @@
+# runtime state written by hooks and the classifier
+.agent-ops/
+
+# eval reports
+evals/reports/
+
+# secrets never belong in this repo
+.secrets/
+.env
+*.pem
+*.key
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

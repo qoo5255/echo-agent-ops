@@ -1,0 +1,53 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {"type": "command", "command": "python \"$CLAUDE_PROJECT_DIR/hooks/batch_delete_guard.py\""},
+          {"type": "command", "command": "python \"$CLAUDE_PROJECT_DIR/hooks/unscoped_process_kill_guard.py\""},
+          {"type": "command", "command": "python \"$CLAUDE_PROJECT_DIR/hooks/heredoc_backslash_guard.py\""}
+        ]
+      },
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {"type": "command", "command": "python \"$CLAUDE_PROJECT_DIR/hooks/block_interactive_question.py\""}
+        ]
+      },
+      {
+        "matcher": "mcp__.*|Bash|PowerShell",
+        "hooks": [
+          {"type": "command", "command": "python \"$CLAUDE_PROJECT_DIR/hooks/secret_output_guard.py\""},
+          {"type": "command", "command": "python \"$CLAUDE_PROJECT_DIR/hooks/email_send_gate.py\""},
+          {"type": "command", "command": "python \"$CLAUDE_PROJECT_DIR/hooks/status_claim_verify_guard.py\""}
+        ]
+      },
+      {
+        "matcher": "Agent|Task",
+        "hooks": [
+          {"type": "command", "command": "python \"$CLAUDE_PROJECT_DIR/hooks/duplicate_dispatch_guard.py\""}
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash|PowerShell",
+        "hooks": [
+          {"type": "command", "command": "python \"$CLAUDE_PROJECT_DIR/hooks/commitment_ledger_guard.py\""}
+        ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {"type": "command", "command": "python \"$CLAUDE_PROJECT_DIR/classifier/autonomy_tier.py\""}
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {"type": "command", "command": "python \"$CLAUDE_PROJECT_DIR/hooks/commitment_ledger_guard.py\""}
+        ]
+      }
+    ]
+  }
+}
